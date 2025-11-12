@@ -16,80 +16,78 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EspecialidadServiceImpl implements EspecialidadService {
 
-    private final EspecialidadRepository repository;
-    private final EspecialidadMapper mapper;
+    private final EspecialidadRepository especialidadRepository;
+    private final EspecialidadMapper especialidadMapper;
 
     @Override
     public EspecialidadDTO create(EspecialidadDTO dto) throws ServiceException {
-        try {
-            if (repository.existsByNombre(dto.getNombre())) {
-                throw new ServiceException("Ya existe una especialidad con el nombre: " + dto.getNombre());
-            }
-
-            Especialidad entity = mapper.toEntity(dto);
-            Especialidad saved = repository.save(entity);
-            return mapper.toDTO(saved);
-        } catch (ServiceException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ServiceException("Error al crear especialidad", e);
+        if (dto == null) {
+            throw new ServiceException("El DTO de especialidad no puede ser nulo.");
         }
+
+        // Validar que el nombre no esté vacío
+        if (dto.getNombre() == null || dto.getNombre().trim().isEmpty()) {
+            throw new ServiceException("El nombre de la especialidad es obligatorio.");
+        }
+
+        // Validar unicidad del nombre
+        Optional<Especialidad> existing = especialidadRepository.findByNombreIgnoreCase(dto.getNombre());
+        if (existing.isPresent()) {
+            throw new ServiceException("Ya existe una especialidad con el nombre: " + dto.getNombre());
+        }
+
+        Especialidad entity = especialidadMapper.toEntity(dto);
+        Especialidad saved = especialidadRepository.save(entity);
+        return especialidadMapper.toDTO(saved);
     }
 
     @Override
     public EspecialidadDTO read(Long id) throws ServiceException {
-        try {
-            Optional<Especialidad> optional = repository.findById(id);
-            if (optional.isEmpty()) {
-                throw new ServiceException("Especialidad no encontrada con ID: " + id);
-            }
-            return mapper.toDTO(optional.get());
-        } catch (Exception e) {
-            throw new ServiceException("Error al buscar especialidad por ID", e);
-        }
+        Especialidad entity = especialidadRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("Especialidad no encontrada con ID: " + id));
+        return especialidadMapper.toDTO(entity);
     }
 
     @Override
     public EspecialidadDTO update(Long id, EspecialidadDTO dto) throws ServiceException {
-        try {
-            if (!repository.existsById(id)) {
-                throw new ServiceException("Especialidad no encontrada con ID: " + id);
-            }
-            if (repository.existsByNombreAndIdEspecialidadNot(dto.getNombre(), id)) {
-                throw new ServiceException("Ya existe otra especialidad con el nombre: " + dto.getNombre());
-            }
-
-            Especialidad entity = repository.findById(id).get();
-            entity.setNombre(dto.getNombre());
-
-            Especialidad updated = repository.save(entity);
-            return mapper.toDTO(updated);
-        } catch (ServiceException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ServiceException("Error al actualizar especialidad", e);
+        if (dto == null) {
+            throw new ServiceException("El DTO de especialidad no puede ser nulo.");
         }
+
+        Especialidad existing = especialidadRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("Especialidad no encontrada con ID: " + id));
+
+        // Validar que el nombre no esté vacío
+        if (dto.getNombre() == null || dto.getNombre().trim().isEmpty()) {
+            throw new ServiceException("El nombre de la especialidad es obligatorio.");
+        }
+
+        // Validar unicidad del nombre (excluyendo el propio registro)
+        Optional<Especialidad> duplicate = especialidadRepository.findByNombreIgnoreCaseAndIdNot(dto.getNombre(), id);
+        if (duplicate.isPresent()) {
+            throw new ServiceException("Ya existe otra especialidad con el nombre: " + dto.getNombre());
+        }
+
+        // Actualizar campos
+        existing.setNombre(dto.getNombre());
+        existing.setEstado(dto.getEstado() != null ? dto.getEstado() : "ACTIVO");
+
+        Especialidad updated = especialidadRepository.save(existing);
+        return especialidadMapper.toDTO(updated);
     }
 
     @Override
     public void delete(Long id) throws ServiceException {
-        try {
-            if (!repository.existsById(id)) {
-                throw new ServiceException("Especialidad no encontrada con ID: " + id);
-            }
-            repository.deleteById(id);
-        } catch (Exception e) {
-            throw new ServiceException("Error al eliminar especialidad", e);
-        }
+        Especialidad entity = especialidadRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("Especialidad no encontrada con ID: " + id));
+
+        // Eliminación lógica: cambiar estado a INACTIVO
+        entity.setEstado("INACTIVO");
+        especialidadRepository.save(entity);
     }
 
     @Override
     public List<EspecialidadDTO> listAll() throws ServiceException {
-        try {
-            List<Especialidad> entities = repository.findAll();
-            return mapper.toDTOs(entities);
-        } catch (Exception e) {
-            throw new ServiceException("Error al listar especialidades", e);
-        }
+        return especialidadMapper.toDTOs(especialidadRepository.findAll());
     }
 }

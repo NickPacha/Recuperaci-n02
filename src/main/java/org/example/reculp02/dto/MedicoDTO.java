@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class MedicoDTO {
     private Long idMedico;
-    private String cmp;
-    private String nombres;
-    private String apellidos;
-    private Long idEspecialidad;      // Relación con Especialidad
-    private String nombreEspecialidad; // Nombre descriptivo
+    private String medCmp; // Cambiado a String
+    private String medNombre;
+    private String medApellidos;
+    private EspecialidadDTO especialidad;
+    private String estado;
 }

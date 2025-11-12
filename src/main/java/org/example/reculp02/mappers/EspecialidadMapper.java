@@ -1,5 +1,6 @@
 package org.example.reculp02.mappers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.example.reculp02.dto.EspecialidadDTO;
 import org.example.reculp02.entity.Especialidad;
@@ -9,23 +10,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class EspecialidadMapper implements BaseMapper<Especialidad, EspecialidadDTO> {
 
     @Override
     public EspecialidadDTO toDTO(Especialidad entity) {
         if (entity == null) return null;
+
         return new EspecialidadDTO(
-                entity.getIdEspecialidad(),
-                entity.getNombre()
+                entity.getId(),
+                entity.getNombre(),
+                entity.getEstado()
         );
     }
 
     @Override
     public Especialidad toEntity(EspecialidadDTO dto) {
         if (dto == null) return null;
+
         return Especialidad.builder()
-                .idEspecialidad(dto.getIdEspecialidad())
+                .id(dto.getId())
                 .nombre(dto.getNombre())
+                .estado(dto.getEstado() != null ? dto.getEstado() : "ACTIVO")
                 .build();
     }
 

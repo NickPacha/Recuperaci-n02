@@ -1,8 +1,7 @@
 package org.example.reculp02.entity;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -16,11 +15,14 @@ public class Especialidad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IDESPECIALIDAD")
-    private Long idEspecialidad;
+    @Column(name = "ID_ESPECIALIDAD")
+    private Long id;
 
     @NotBlank(message = "El nombre de la especialidad no puede estar vacío")
-    @Size(max = 50, message = "El nombre de la especialidad no puede tener más de 50 caracteres")
-    @Column(name = "NOMBRE", length = 50, nullable = false)
+    @Column(name = "ESPE_NOMBRE", nullable = false)
     private String nombre;
+
+    @NotNull(message = "El estado es obligatorio")
+    @Column(name = "ESTADO", nullable = false)
+    private String estado = "ACTIVO"; // valor por defecto, puede ser ACTIVO o INACTIVO
 }

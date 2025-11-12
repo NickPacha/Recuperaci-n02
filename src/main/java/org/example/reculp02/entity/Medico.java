@@ -3,8 +3,9 @@ package org.example.reculp02.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "MEDICO")
@@ -17,27 +18,33 @@ public class Medico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IDMEDICO")
+    @Column(name = "ID_MEDICO")
     private Long idMedico;
 
-    @NotBlank(message = "El CMP no puede estar vacío")
-    @Size(max = 9, message = "El CMP no puede tener más de 9 caracteres")
-    @Column(name = "CMP", length = 9, nullable = false, unique = true)
-    private String cmp;
+    @NotBlank(message = "El CMP del médico es obligatorio") // Cambiado a NotBlank
+    @Column(name = "MED_CMP", nullable = false, unique = true, length = 20) // Añadido length
+    private String medCmp; // Cambiado a String
 
-    @NotBlank(message = "El nombre no puede estar vacío")
-    @Size(max = 25, message = "El nombre no puede tener más de 25 caracteres")
-    @Column(name = "NOMBRES", length = 25, nullable = false)
-    private String nombres;
+    @NotBlank(message = "El nombre del médico no puede estar vacío")
+    @Column(name = "MED_Nombre", nullable = false)
+    private String medNombre;
 
-    @NotBlank(message = "El apellido no puede estar vacío")
-    @Size(max = 25, message = "El apellido no puede tener más de 25 caracteres")
-    @Column(name = "APELLIDOS", length = 25, nullable = false)
-    private String apellidos;
+    @NotBlank(message = "Los apellidos del médico no pueden estar vacíos")
+    @Column(name = "MED_Apellidos", nullable = false)
+    private String medApellidos;
 
     @NotNull(message = "La especialidad es obligatoria")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IDESPECIALIDAD", nullable = false,
-            foreignKey = @ForeignKey(name = "FK_MEDICO_ESPECIALIDAD"))
+    @JoinColumn(name = "ID_ESPECIALIDAD", nullable = false)
     private Especialidad especialidad;
+
+    @NotNull(message = "El estado es obligatorio")
+    @Column(name = "ESTADO", nullable = false)
+    private String estado = "ACTIVO";
+
+    // Opcional: fecha de registro, etc.
+    /*
+    @Column(name = "FECHA_REGISTRO")
+    private LocalDate fechaRegistro;
+    */
 }

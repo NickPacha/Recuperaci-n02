@@ -4,10 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class EspecialidadDTO {
-    private Long idEspecialidad;
+    private Long id;
     private String nombre;
+    private String estado;
 }
